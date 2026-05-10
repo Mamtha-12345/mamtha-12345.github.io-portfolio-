@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mamtha G | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Exo+2:wght@300;400;500;600;700;800;900&family=Audiowide&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#030308}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#00e5ff,#b026ff);border-radius:3px}
+html{zoom:1}
+html,body{width:100%;min-height:100vh;font-family:'Exo 2',sans-serif;background:#030308;color:#fff;overflow-x:hidden}
+
+.cur-dot{position:fixed;width:6px;height:6px;background:#00e5ff;border-radius:50%;pointer-events:none;z-index:99999;box-shadow:0 0 10px #00e5ff;transition:transform .05s}
+.cur-ring{position:fixed;width:36px;height:36px;border:2px solid rgba(0,229,255,.4);border-radius:50%;pointer-events:none;z-index:99998;transition:all .18s ease-out}
+.cur-ring.hov{width:56px;height:56px;border-color:#b026ff;background:rgba(176,38,255,.08);box-shadow:0 0 20px rgba(176,38,255,.3)}
+.cur-glow{position:fixed;pointer-events:none;z-index:1;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.05) 0%,rgba(176,38,255,.02) 40%,transparent 70%);transform:translate(-50%,-50%)}
+
+#loader{position:fixed;inset:0;background:#030308;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s,visibility .8s}
+#loader.done{opacity:0;visibility:hidden;pointer-events:none}
+.ld-name{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;background:linear-gradient(90deg,#00e5ff,#b026ff,#ff007f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px;letter-spacing:6px}
+.ld-ring{width:70px;height:70px;border:3px solid transparent;border-top-color:#00e5ff;border-radius:50%;animation:ldSp 1s linear infinite;position:relative}
+.ld-ring::before{content:'';position:absolute;inset:6px;border:3px solid transparent;border-top-color:#b026ff;border-radius:50%;animation:ldSp .6s linear infinite reverse}
+.ld-ring::after{content:'';position:absolute;inset:14px;border:3px solid transparent;border-top-color:#ff007f;border-radius:50%;animation:ldSp 1.4s linear infinite}
+@keyframes ldSp{to{transform:rotate(360deg)}}
+.ld-bar{width:180px;height:2px;background:rgba(255,255,255,.08);border-radius:1px;overflow:hidden;margin-top:24px}
+.ld-fill{height:100%;width:0;background:linear-gradient(90deg,#00e5ff,#b026ff);border-radius:1px;animation:ldBar 2s ease forwards}
+@keyframes ldBar{to{width:100%}}
+.ld-pct{font-family:'JetBrains Mono',monospace;font-size:13px;color:#00e5ff;margin-top:12px;letter-spacing:3px}
+
+#matrixBg{position:fixed;inset:0;z-index:0;opacity:.1;pointer-events:none}
+#threeBg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.ptc{position:fixed;border-radius:50%;pointer-events:none;z-index:0;animation:ptcUp linear infinite}
+@keyframes ptcUp{0%{transform:translateY(0) scale(0);opacity:0}8%{opacity:1;transform:translateY(-8vh) scale(1)}92%{opacity:.6}100%{transform:translateY(-105vh) scale(0);opacity:0}}
+
+.grid-bg{background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:60px 60px}
+.scan{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00e5ff88,transparent);animation:scanD 5s linear infinite;z-index:3;pointer-events:none}
+@keyframes scanD{0%{top:-2px;opacity:0}3%{opacity:1}97%{opacity:1}100%{top:100%;opacity:0}}
+
+.gl{background:rgba(5,5,20,.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(0,229,255,.1);border-radius:16px;transition:all .4s cubic-bezier(.4,0,.2,1)}
+.gl:hover{border-color:rgba(0,229,255,.4);box-shadow:0 0 40px rgba(0,229,255,.1),0 8px 32px rgba(0,0,0,.3);transform:translateY(-5px)}
+
+.nb{display:inline-block;background:linear-gradient(135deg,rgba(0,229,255,.12),rgba(176,38,255,.12));border:1.5px solid #00e5ff;border-radius:50px;color:#00e5ff;font-family:'Orbitron',monospace;font-weight:700;font-size:11px;letter-spacing:2.5px;cursor:pointer;padding:14px 34px;text-transform:uppercase;transition:all .35s;position:relative;overflow:hidden;text-decoration:none;z-index:1}
+.nb::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#00e5ff,#b026ff);border-radius:50px;opacity:0;transition:opacity .35s;z-index:-1}
+.nb:hover{color:#000;box-shadow:0 0 35px rgba(0,229,255,.5),0 0 80px rgba(0,229,255,.2);transform:scale(1.06)}
+.nb:hover::before{opacity:1}
+.nb.pk{border-color:#ff007f;color:#ff007f}.nb.pk::before{background:linear-gradient(135deg,#ff007f,#b026ff)}.nb.pk:hover{color:#fff;box-shadow:0 0 35px rgba(255,0,127,.5)}
+.nb.gn{border-color:#00e676;color:#00e676}.nb.gn::before{background:linear-gradient(135deg,#00e676,#00e5ff)}.nb.gn:hover{color:#000;box-shadow:0 0 35px rgba(0,230,118,.5)}
+
+.glitch{position:relative}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;overflow:hidden}
+.glitch::before{color:#ff007f;z-index:-1;animation:gl1 2.5s infinite}
+.glitch::after{color:#00ffff;z-index:-1;animation:gl2 2.5s infinite}
+@keyframes gl1{0%,100%{clip-path:inset(0 0 90% 0);transform:translate(0)}10%{clip-path:inset(20% 0 60% 0);transform:translate(-4px,2px)}20%{clip-path:inset(50% 0 30% 0);transform:translate(3px,-2px)}30%{clip-path:inset(70% 0 10% 0);transform:translate(-2px,1px)}40%,100%{clip-path:inset(0 0 90% 0);transform:translate(0)}}
+@keyframes gl2{0%,100%{clip-path:inset(90% 0 0 0);transform:translate(0)}15%{clip-path:inset(40% 0 30% 0);transform:translate(4px,-1px)}25%{clip-path:inset(10% 0 70% 0);transform:translate(-3px,2px)}35%{clip-path:inset(60% 0 20% 0);transform:translate(2px,-1px)}45%,100%{clip-path:inset(90% 0 0 0);transform:translate(0)}}
+
+.sr{opacity:0;transform:translateY(50px);transition:all .9s cubic-bezier(.4,0,.2,1)}.sr.vis{opacity:1;transform:translateY(0)}
+.sk-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.sk-fill{height:100%;border-radius:3px;transition:width 2s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px rgba(0,229,255,.4)}
+.sk-circ{position:relative;display:flex;align-items:center;justify-content:center}
+.sk-circ svg{transform:rotate(-90deg)}
+.sk-circ .ring{transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)}
+
+.tl-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;position:relative;z-index:2;box-shadow:0 0 20px var(--c)}
+.tl-dot::after{content:'';position:absolute;inset:-8px;border:2px solid var(--c);border-radius:50%;opacity:.3;animation:tlPulse 2s infinite}
+@keyframes tlPulse{0%{transform:scale(1);opacity:.3}100%{transform:scale(2.2);opacity:0}}
+
+.rot{animation:rot 25s linear infinite}.rot-r{animation:rot 20s linear infinite reverse}
+@keyframes rot{to{transform:rotate(360deg)}}
+.flt{animation:flt 4s ease-in-out infinite}
+@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.holo{background-size:300% 300%;animation:holo 4s ease infinite}
+@keyframes holo{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.mq-track{display:flex;animation:mq 35s linear infinite;width:max-content}
+@keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tilt{perspective:1000px}.tilt-in{transition:transform .5s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.nb-border{position:relative;z-index:1}
+.nb-border::before{content:'';position:absolute;inset:-2px;background:conic-gradient(from 0deg,#00e5ff,#b026ff,#ff007f,#00ffff,#00e676,#00e5ff);border-radius:18px;animation:rot 3s linear infinite;z-index:-1;opacity:0;transition:opacity .4s}
+.nb-border:hover::before{opacity:1}
+.nb-border::after{content:'';position:absolute;inset:2px;background:rgba(5,5,20,.92);border-radius:14px;z-index:-1}
+
+.nv{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);cursor:pointer;transition:all .3s;padding:8px 14px;border-radius:6px;text-decoration:none;position:relative}
+.nv:hover,.nv.act{color:#00e5ff;text-shadow:0 0 12px rgba(0,229,255,.4)}
+.nv.act::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:18px;height:2px;background:#00e5ff;border-radius:1px;box-shadow:0 0 6px #00e5ff}
+
+.chat-box{max-height:300px;overflow-y:auto}.chat-box::-webkit-scrollbar{width:3px}.chat-box::-webkit-scrollbar-thumb{background:#00e5ff;border-radius:2px}
+.td span{animation:tdb 1.2s infinite;display:inline-block}.td span:nth-child(2){animation-delay:.3s}.td span:nth-child(3){animation-delay:.6s}
+@keyframes tdb{0%,100%{opacity:.2}50%{opacity:1}}
+.fi{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(0,229,255,.12);border-radius:10px;padding:14px 18px;color:#ddd;font-family:'Exo 2',sans-serif;font-size:16px;outline:none;transition:all .3s}
+.fi:focus{border-color:#00e5ff;box-shadow:0 0 25px rgba(0,229,255,.12);background:rgba(0,229,255,.02)}
+.fi::placeholder{color:rgba(255,255,255,.15)}
+.pulse{animation:pls 2.5s infinite}
+@keyframes pls{0%{box-shadow:0 0 0 0 rgba(0,229,255,.35)}70%{box-shadow:0 0 0 28px rgba(0,229,255,0)}100%{box-shadow:0 0 0 0 rgba(0,229,255,0)}}
+.cnt{font-family:'Orbitron',monospace;font-size:2.6rem;font-weight:900;background:linear-gradient(135deg,#00e5ff,#b026ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tc{display:inline-block;width:3px;height:1em;background:#00e5ff;animation:tb .7s infinite;vertical-align:text-bottom;margin-left:3px}
+@keyframes tb{0%,100%{opacity:1}50%{opacity:0}}
+.status-d{width:6px;height:6px;border-radius:50%;background:#00e676;box-shadow:0 0 8px #00e676;display:inline-block;animation:pls 2s infinite;margin-right:6px}
+
+/* FLIP CARD FOR CERTIFICATES */
+.flip-card{perspective:1200px;cursor:pointer}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;overflow:hidden}
+.flip-back{transform:rotateY(180deg)}
+.flip-card.flipped .flip-back{z-index:2}
+
+/* PROJECT IMAGE MODAL */
+.img-modal{position:fixed;inset:0;z-index:95000;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s}
+.img-modal.show{opacity:1;visibility:visible}
+.img-modal img{max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 0 60px rgba(0,229,255,.2);transform:scale(.8);transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.img-modal.show img{transform:scale(1)}
+.img-modal .close-btn{position:absolute;top:20px;right:30px;font-size:36px;color:#00e5ff;cursor:pointer;z-index:2;width:50px;height:50px;border-radius:50%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;transition:all .3s}
+.img-modal .close-btn:hover{background:#00e5ff;color:#000;transform:rotate(90deg)}
+.img-nav{position:absolute;top:50%;transform:translateY(-50%);font-size:28px;color:#00e5ff;cursor:pointer;width:50px;height:50px;border-radius:50%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;transition:all .3s;z-index:2}
+.img-nav:hover{background:#00e5ff;color:#000}
+.img-nav.prev{left:20px}.img-nav.next{right:20px}
+
+/* GITHUB LINK BTN */
+.gh-link{display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#00e5ff;text-decoration:none;transition:all .3s}
+.gh-link:hover{background:#00e5ff;color:#000;box-shadow:0 0 20px rgba(0,229,255,.3)}
+
+/* PROJ THUMB */
+.proj-thumb{width:100%;height:160px;object-fit:cover;border-radius:10px;cursor:pointer;transition:all .4s;border:1px solid rgba(0,229,255,.1)}
+.proj-thumb:hover{border-color:#00e5ff;box-shadow:0 0 25px rgba(0,229,255,.2);transform:scale(1.02)}
+
+/* CERT STYLING */
+.cert-visual{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:linear-gradient(135deg,#0a0a20,#150a30);position:relative;overflow:hidden}
+.cert-visual::before{content:'';position:absolute;inset:8px;border:2px solid;border-radius:12px;opacity:.3}
+.cert-visual .cert-icon{font-size:48px;margin-bottom:12px}
+.cert-visual .cert-title{font-family:'Orbitron',monospace;font-size:13px;color:#fff;margin-bottom:6px;line-height:1.4}
+.cert-visual .cert-issuer{font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.5}
+.cert-visual .cert-seal{position:absolute;bottom:16px;right:16px;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid;opacity:.4}
+
+/* CLICK HINT */
+.click-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(0,229,255,.5);letter-spacing:1px;animation:chPulse 2s infinite}
+@keyframes chPulse{0%,100%{opacity:.3}50%{opacity:.8}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .hm{display:none!important}.fm{width:100!important}.g2{grid-template-columns:1fr!important}.g3{grid-template-columns:1fr!important}.g4{grid-template-columns:1fr 1fr!important}
+  .hero-g{grid-template-columns:1fr!important;text-align:center}.hero-g .hero-ph{margin:0 auto}
+  .nv-wrap{display:none!important}.mob-btn{display:flex!important}.mob-nav{display:flex!important}
+  .cnt{font-size:1.8rem}.sp{padding:60px 16px!important}.hero-t{font-size:2.6rem!important}
+  .flip-card{height:260px!important}
+  .proj-thumb{height:120px}
+  .nav-s{display:none!important}
+}
+@media(min-width:901px){.mob-btn{display:none!important}.mob-nav{display:none!important}}
+@media(min-width:1200px){.nav-s{display:inline}}
+@media(max-width:500px){.hero-t{font-size:2rem!important}.g4{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+
+<div class="cur-dot" id="cDot"></div>
+<div class="cur-ring" id="cRing"></div>
+<div class="cur-glow" id="cGlow"></div>
+
+<div id="loader">
+  <div class="ld-name">MAMTHA G</div>
+  <div class="ld-ring"></div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-pct" id="ldPct">0%</div>
+</div>
+
+<canvas id="matrixBg"></canvas>
+<canvas id="threeBg"></canvas>
+
+<div class="orb" style="width:500px;height:500px;background:rgba(0,229,255,.06);top:5%;left:-8%;animation:flt 10s ease-in-out infinite"></div>
+<div class="orb" style="width:400px;height:400px;background:rgba(176,38,255,.06);top:35%;right:-5%;animation:flt 12s ease-in-out infinite 2s"></div>
+<div class="orb" style="width:450px;height:450px;background:rgba(255,0,127,.04);bottom:5%;left:15%;animation:flt 14s ease-in-out infinite 4s"></div>
+
+<!-- IMAGE MODAL -->
+<div class="img-modal" id="imgModal">
+  <div class="close-btn" onclick="closeModal()">✕</div>
+  <div class="img-nav prev" onclick="navImg(-1)">◀</div>
+  <img id="modalImg" src="" alt="">
+  <div class="img-nav next" onclick="navImg(1)">▶</div>
+  <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:12px;color:#00e5ff" id="imgCap"></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav" style="position:fixed;top:0;left:0;right:0;z-index:9000;background:rgba(3,3,8,.85);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid rgba(0,229,255,.06);transition:all .3s">
+  <div style="max-width:1300px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:68px">
+    <a href="#hero" style="text-decoration:none;font-family:'Audiowide',sans-serif;font-size:22px;background:linear-gradient(135deg,#00e5ff,#b026ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px" class="hl">MG</a>
+    <div class="nv-wrap" style="display:flex;gap:1px;align-items:center;flex-wrap:nowrap">
+      <a href="#hero" class="nv hl act" data-s="hero">Home</a>
+      <a href="#about" class="nv hl" data-s="about">About</a>
+      <a href="#skills" class="nv hl" data-s="skills">Skills</a>
+      <a href="#education" class="nv hl nav-s" data-s="education">Education</a>
+      <a href="#experience" class="nv hl" data-s="experience">Experience</a>
+      <a href="#projects" class="nv hl" data-s="projects">Projects</a>
+      <a href="#achievements" class="nv hl" data-s="achievements">Awards</a>
+      <a href="#certifications" class="nv hl nav-s" data-s="certifications">Certs</a>
+      <a href="#coding" class="nv hl nav-s" data-s="coding">Profiles</a>
+      <a href="#vision" class="nv hl nav-s" data-s="vision">Vision</a>
+      <a href="#assistant" class="nv hl nav-s" data-s="assistant">Bot</a>
+      <a href="#contact" class="nv hl" data-s="contact">Contact</a>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <span class="hm" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#00e5ff"><span class="status-d"></span><span id="clock"></span></span>
+      <a href="#contact" class="nb hl" style="padding:10px 22px;font-size:9px">HIRE ME</a>
+      <button class="mob-btn" onclick="toggleMob()" style="background:none;border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:8px;width:38px;height:38px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">☰</button>
+    </div>
+  </div>
+  <div class="mob-nav" id="mobNav" style="display:none;flex-direction:column;padding:12px 20px 20px;background:rgba(3,3,8,.97);border-top:1px solid rgba(0,229,255,.08)">
+    <a href="#hero" class="nv" onclick="closeMob()" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">Home</a>
+    <a href="#about" class="nv" onclick="closeMob()" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">About</a>
+    <a href="#skills" class="nv" onclick="closeMob()" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">Skills</a>
+    <a href="#experience" class="nv" onclick="closeMob()" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">Experience</a>
+    <a href="#projects" class="nv" onclick="closeMob()" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">Projects</a>
+    <a href="#achievements" class="nv" onclick="closeMob()" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">Achievements</a>
+    <a href="#contact" class="nv" onclick="closeMob()" style="padding:10px 0">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="grid-bg" style="min-height:100vh;display:flex;align-items:center;padding:100px 20px 60px;position:relative;overflow:hidden">
+  <div class="scan"></div>
+  <svg style="position:absolute;right:-120px;top:50%;transform:translateY(-50%);opacity:.035;z-index:0" width="650" height="650" viewBox="0 0 650 650">
+    <polygon points="325,25 610,190 610,460 325,625 40,460 40,190" fill="none" stroke="#00e5ff" stroke-width="2" class="rot"/>
+    <polygon points="325,75 560,210 560,440 325,575 90,440 90,210" fill="none" stroke="#b026ff" stroke-width="1.5" class="rot-r"/>
+    <polygon points="325,125 510,230 510,420 325,525 140,420 140,230" fill="none" stroke="#ff007f" stroke-width="1" class="rot" style="animation-duration:35s"/>
+    <circle cx="325" cy="325" r="280" fill="none" stroke="#00e5ff" stroke-width=".5" stroke-dasharray="8 12" class="rot-r" style="animation-duration:40s"/>
+  </svg>
+  <div style="max-width:1300px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 320px;gap:60px;align-items:center" class="hero-g">
+    <div style="position:relative;z-index:2">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00e5ff;letter-spacing:5px;margin-bottom:18px;opacity:.7">&gt; INITIALIZING PORTFOLIO_<span class="tc"></span></div>
+      <h1 class="glitch hero-t" data-text="MAMTHA G" style="font-family:'Orbitron',monospace;font-weight:900;font-size:5rem;line-height:1;margin-bottom:14px;background:linear-gradient(135deg,#fff 15%,#00e5ff 55%,#b026ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative">MAMTHA G</h1>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:19px;color:#b026ff;margin-bottom:6px;min-height:30px"><span style="color:#00e5ff">// </span><span id="typed"></span><span class="tc"></span></div>
+      <p style="font-family:'Exo 2',sans-serif;font-size:18px;color:rgba(255,255,255,.55);max-width:580px;line-height:1.8;margin-bottom:36px;font-weight:300">Passionate B.E ECE Engineer bridging the gap between hardware intelligence and software elegance. Specializing in IoT, Data Analytics, VLSI, and AI & Robotics.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:44px">
+        <a href="#contact" class="nb hl">⚡ HIRE ME</a>
+        <a href="#projects" class="nb pk hl">🚀 PROJECTS</a>
+        <a href="#contact" class="nb gn hl">📄 RESUME</a>
+      </div>
+      <div style="display:flex;gap:40px;flex-wrap:wrap">
+        <div style="text-align:center"><div class="cnt" data-t="8.5">0</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px">CGPA</div></div>
+        <div style="text-align:center"><div class="cnt" data-t="4">0</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px">INTERNSHIPS</div></div>
+        <div style="text-align:center"><div class="cnt" data-t="4">0</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px">PROJECTS</div></div>
+        <div style="text-align:center"><div class="cnt" data-t="4">0</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px">AWARDS</div></div>
+      </div>
+    </div>
+    <div class="hero-ph" style="position:relative;width:300px;height:300px;flex-shrink:0">
+      <div style="position:absolute;inset:-35px;background:conic-gradient(from 0deg,#00e5ff,#b026ff,#ff007f,#00ffff,#00e676,#00e5ff);border-radius:50%;opacity:.25;animation:rot 4s linear infinite"></div>
+      <div style="position:absolute;inset:-18px;border:1px solid rgba(0,229,255,.15);border-radius:50%;animation:rot 9s linear infinite reverse"></div>
+      <div style="position:absolute;inset:-8px;border:1px dashed rgba(176,38,255,.15);border-radius:50%;animation:rot 14s linear infinite"></div>
+      <div class="pulse" style="position:relative;width:300px;height:300px;border-radius:50%;overflow:hidden;border:3px solid rgba(0,229,255,.35);box-shadow:0 0 80px rgba(0,229,255,.2),0 0 160px rgba(176,38,255,.1),inset 0 0 60px rgba(0,229,255,.05)">
+        <img src="https://z-cdn-media.chatglm.cn/files/91494f19-7a38-41bc-965c-6bff457c1e2e.jpg?auth_key=1878414874-5e27c61d4e924005977d6d503b6f86b7-0-3a1b9ae9d9a3697f86d85106513ee7db" alt="Mamtha G" style="width:100%;height:100%;object-fit:cover;object-position:top center" onerror="this.style.display='none';document.getElementById('phFb').style.display='flex'">
+        <div id="phFb" style="display:none;width:100%;height:100%;background:linear-gradient(135deg,#080820,#150a30);align-items:center;justify-content:center;font-size:80px;font-family:'Orbitron',monospace;color:#00e5ff;font-weight:900">MG</div>
+      </div>
+      <div class="flt" style="position:absolute;top:-8px;right:-30px;font-size:22px">🔌</div>
+      <div class="flt" style="position:absolute;bottom:15px;left:-32px;font-size:22px;animation-delay:.6s">📊</div>
+      <div class="flt" style="position:absolute;top:42%;right:-38px;font-size:22px;animation-delay:1.2s">💻</div>
+      <div class="flt" style="position:absolute;bottom:-5px;right:40px;font-size:22px;animation-delay:.9s">🤖</div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.3">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#00e5ff;letter-spacing:3px">SCROLL</div>
+    <div style="width:1px;height:35px;background:linear-gradient(#00e5ff,transparent);animation:flt 2s ease-in-out infinite"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div style="padding:16px 0;border-top:1px solid rgba(0,229,255,.06);border-bottom:1px solid rgba(0,229,255,.06);overflow:hidden;background:rgba(0,229,255,.015)">
+  <div class="mq-track">
+    <div style="display:flex;gap:50px;padding:0 24px;align-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,229,255,.35);white-space:nowrap">⚡ HTML/CSS</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(176,38,255,.35);white-space:nowrap">⚡ PYTHON</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,0,127,.35);white-space:nowrap">⚡ JAVA</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,255,255,.35);white-space:nowrap">⚡ IOT/ARDUINO</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,230,118,.35);white-space:nowrap">⚡ ESP8266/ESP32</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,229,255,.35);white-space:nowrap">⚡ DATA ANALYTICS</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(176,38,255,.35);white-space:nowrap">⚡ VLSI/VERILOG</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,0,127,.35);white-space:nowrap">⚡ POWER BI</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,255,255,.35);white-space:nowrap">⚡ GIT</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,230,118,.35);white-space:nowrap">⚡ C LANGUAGE</span></div>
+    <div style="display:flex;gap:50px;padding:0 24px;align-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,229,255,.35);white-space:nowrap">⚡ HTML/CSS</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(176,38,255,.35);white-space:nowrap">⚡ PYTHON</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,0,127,.35);white-space:nowrap">⚡ JAVA</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,255,255,.35);white-space:nowrap">⚡ IOT/ARDUINO</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,230,118,.35);white-space:nowrap">⚡ ESP8266/ESP32</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,229,255,.35);white-space:nowrap">⚡ DATA ANALYTICS</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(176,38,255,.35);white-space:nowrap">⚡ VLSI/VERILOG</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,0,127,.35);white-space:nowrap">⚡ POWER BI</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,255,255,.35);white-space:nowrap">⚡ GIT</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,230,118,.35);white-space:nowrap">⚡ C LANGUAGE</span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about" class="sr sp" style="padding:100px 20px;max-width:1300px;margin:0 auto">
+  <div class="sec-hd"><span>WHO AM I?</span><h2>ABOUT ME</h2><div class="sec-line"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center" class="g2">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#00e5ff;letter-spacing:3px;margin-bottom:16px">&gt; about.execute()</div>
+      <p style="font-size:18px;color:rgba(255,255,255,.65);line-height:1.9;margin-bottom:18px">I'm a final-year <span style="color:#00e5ff;font-weight:600">B.E Electronics & Communication Engineering</span> student at P.S.V College of Engineering & Technology, Krishnagiri under Anna University, graduating in 2026 with a CGPA of <span style="color:#b026ff;font-weight:600">8.5</span>.</p>
+      <p style="font-size:17px;color:rgba(255,255,255,.45);line-height:1.9;margin-bottom:28px">With expertise spanning IoT, Embedded Systems, Data Analytics, VLSI Design, and AI & Robotics, I bridge the gap between hardware intelligence and software elegance. Having completed 4 industry internships and built real-world solutions, I'm driven by curiosity and a relentless desire to create impactful technology.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);border-radius:20px;padding:6px 16px;font-size:12px;color:#00e5ff;font-family:'JetBrains Mono',monospace">Communication</span>
+        <span style="background:rgba(176,38,255,.08);border:1px solid rgba(176,38,255,.2);border-radius:20px;padding:6px 16px;font-size:12px;color:#b026ff;font-family:'JetBrains Mono',monospace">Teamwork</span>
+        <span style="background:rgba(255,0,127,.08);border:1px solid rgba(255,0,127,.2);border-radius:20px;padding:6px 16px;font-size:12px;color:#ff007f;font-family:'JetBrains Mono',monospace">Adaptability</span>
+        <span style="background:rgba(0,255,255,.08);border:1px solid rgba(0,255,255,.2);border-radius:20px;padding:6px 16px;font-size:12px;color:#00ffff;font-family:'JetBrains Mono',monospace">Creativity</span>
+        <span style="background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:20px;padding:6px 16px;font-size:12px;color:#00e676;font-family:'JetBrains Mono',monospace">Self-Motivating</span>
+        <span style="background:rgba(138,43,226,.08);border:1px solid rgba(138,43,226,.2);border-radius:20px;padding:6px 16px;font-size:12px;color:#8a2be2;font-family:'JetBrains Mono',monospace">Hardworking</span>
+      </div>
+    </div>
+    <div class="gl" style="padding:30px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#00e5ff;letter-spacing:3px;margin-bottom:22px">&gt; personal_info.json</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;gap:12px;align-items:center"><span style="font-size:17px">📧</span><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px">EMAIL</div><div style="font-size:14px;color:#bbb">mamthag1206@gmail.com</div></div></div>
+        <div style="display:flex;gap:12px;align-items:center"><span style="font-size:17px">📱</span><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px">PHONE</div><div style="font-size:14px;color:#bbb">+91 8248332242</div></div></div>
+        <div style="display:flex;gap:12px;align-items:center"><span style="font-size:17px">📍</span><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px">LOCATION</div><div style="font-size:14px;color:#bbb">Krishnagiri, Tamil Nadu</div></div></div>
+        <div style="display:flex;gap:12px;align-items:center"><span style="font-size:17px">🎓</span><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px">CGPA</div><div style="font-size:14px;color:#00e5ff;font-weight:600">8.5 / 10</div></div></div>
+        <div style="display:flex;gap:12px;align-items:center"><span style="font-size:17px">🎂</span><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px">DOB</div><div style="font-size:14px;color:#bbb">12-06-2005</div></div></div>
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(0,229,255,.08)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px;margin-bottom:10px">LANGUAGES</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span style="background:rgba(176,38,255,.1);border:1px solid rgba(176,38,255,.2);border-radius:4px;padding:4px 10px;font-size:11px;color:#b026ff;font-family:'JetBrains Mono',monospace">Tamil</span>
+          <span style="background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.2);border-radius:4px;padding:4px 10px;font-size:11px;color:#00e5ff;font-family:'JetBrains Mono',monospace">Telugu</span>
+          <span style="background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.2);border-radius:4px;padding:4px 10px;font-size:11px;color:#00e676;font-family:'JetBrains Mono',monospace">English</span>
+          <span style="background:rgba(255,0,127,.1);border:1px solid rgba(255,0,127,.2);border-radius:4px;padding:4px 10px;font-size:11px;color:#ff007f;font-family:'JetBrains Mono',monospace">Kannada</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="sr" style="padding:100px 20px;background:rgba(0,229,255,.01)">
+  <div style="max-width:1300px;margin:0 auto">
+    <div class="sec-hd"><span>TECHNICAL ARSENAL</span><h2>SKILLS</h2><div class="sec-line"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px" class="g2">
+      <div>
+        <h3 style="font-family:'Orbitron',monospace;font-size:12px;color:#00e5ff;letter-spacing:3px;margin-bottom:24px">TECHNICAL SKILLS</h3>
+        <div id="circSk" style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:36px" class="g4"></div>
+        <div id="barSk"></div>
+      </div>
+      <div>
+        <h3 style="font-family:'Orbitron',monospace;font-size:12px;color:#b026ff;letter-spacing:3px;margin-bottom:24px">TOOLS & TECHNOLOGIES</h3>
+        <div id="toolsG" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px"></div>
+        <h3 style="font-family:'Orbitron',monospace;font-size:12px;color:#ff007f;letter-spacing:3px;margin-bottom:16px">SOFT SKILLS</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div class="gl holo" style="padding:8px 18px;border-radius:10px;font-size:13px;color:#ccc;background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(176,38,255,.06),rgba(255,0,127,.06))">Communication</div>
+          <div class="gl holo" style="padding:8px 18px;border-radius:10px;font-size:13px;color:#ccc;background:linear-gradient(135deg,rgba(176,38,255,.06),rgba(255,0,127,.06),rgba(0,229,255,.06));animation-delay:.7s">Teamwork</div>
+          <div class="gl holo" style="padding:8px 18px;border-radius:10px;font-size:13px;color:#ccc;background:linear-gradient(135deg,rgba(255,0,127,.06),rgba(0,229,255,.06),rgba(176,38,255,.06));animation-delay:1.4s">Adaptability</div>
+          <div class="gl holo" style="padding:8px 18px;border-radius:10px;font-size:13px;color:#ccc;background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(255,0,127,.06),rgba(176,38,255,.06));animation-delay:2.1s">Creativity</div>
+          <div class="gl holo" style="padding:8px 18px;border-radius:10px;font-size:13px;color:#ccc;background:linear-gradient(135deg,rgba(176,38,255,.06),rgba(0,229,255,.06),rgba(255,0,127,.06));animation-delay:2.8s">Self-Motivating</div>
+          <div class="gl holo" style="padding:8px 18px;border-radius:10px;font-size:13px;color:#ccc;background:linear-gradient(135deg,rgba(255,0,127,.06),rgba(176,38,255,.06),rgba(0,229,255,.06));animation-delay:3.5s">Hardworking</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education" class="sr" style="padding:100px 20px;max-width:1300px;margin:0 auto">
+  <div class="sec-hd"><span>ACADEMIC FOUNDATION</span><h2>EDUCATION</h2><div class="sec-line"></div></div>
+  <div class="gl nb-border" style="padding:40px;max-width:800px">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;align-items:center">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:3px;margin-bottom:10px">DEGREE</div>
+        <h3 style="font-family:'Orbitron',monospace;font-size:20px;color:#00e5ff;margin-bottom:8px">B.E ECE</h3>
+        <p style="font-size:16px;color:rgba(255,255,255,.6);margin-bottom:4px">P.S.V College of Engineering & Technology, Krishnagiri</p>
+        <p style="font-size:14px;color:rgba(255,255,255,.35)">Anna University</p>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'Orbitron',monospace;font-size:44px;font-weight:900;background:linear-gradient(135deg,#00e5ff,#b026ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1">8.5</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px">CGPA</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,.35);margin-top:8px">2022 – 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="sr" style="padding:100px 20px;background:rgba(176,38,255,.01)">
+  <div style="max-width:1300px;margin:0 auto">
+    <div class="sec-hd"><span>PROFESSIONAL JOURNEY</span><h2>EXPERIENCE</h2><div class="sec-line"></div></div>
+    <div id="expTL" style="position:relative;padding-left:50px">
+      <div style="position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#00e5ff,#b026ff,#ff007f,#00e676)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="sr" style="padding:100px 20px;max-width:1300px;margin:0 auto">
+  <div class="sec-hd"><span>THINGS I'VE BUILT</span><h2>PROJECTS</h2><div class="sec-line"></div></div>
+  <div id="projG" style="display:grid;grid-template-columns:1fr 1fr;gap:24px" class="g2"></div>
+</section>
+
+<!-- ACHIEVEMENTS WITH FLIP CERTIFICATES -->
+<section id="achievements" class="sr" style="padding:100px 20px;background:rgba(255,0,127,.01)">
+  <div style="max-width:1300px;margin:0 auto">
+    <div class="sec-hd"><span>MILESTONES & RECOGNITION</span><h2>ACHIEVEMENTS</h2><div class="sec-line"></div></div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(0,229,255,.4);letter-spacing:2px;margin-bottom:24px">&gt; CLICK EACH CARD TO REVEAL CERTIFICATE</p>
+    <div id="achG" style="display:grid;grid-template-columns:1fr 1fr;gap:24px" class="g2"></div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications" class="sr" style="padding:100px 20px;max-width:1300px;margin:0 auto">
+  <div class="sec-hd"><span>VERIFIED CREDENTIALS</span><h2>CERTIFICATIONS</h2><div class="sec-line"></div></div>
+  <div id="certG" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" class="g3"></div>
+</section>
+
+<!-- CODING PROFILES -->
+<section id="coding" class="sr" style="padding:100px 20px;background:rgba(0,230,118,.008)">
+  <div style="max-width:1300px;margin:0 auto">
+    <div class="sec-hd"><span>ONLINE PRESENCE</span><h2>CONNECT WITH ME</h2><div class="sec-line"></div></div>
+    <div id="profG" style="display:flex;gap:20px;flex-wrap:wrap"></div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section id="vision" class="sr" style="padding:100px 20px;background:rgba(176,38,255,.01)">
+  <div style="max-width:1300px;margin:0 auto">
+    <div class="sec-hd"><span>LOOKING AHEAD</span><h2>FUTURE VISION</h2><div class="sec-line"></div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px" class="g3">
+      <div class="gl" style="padding:32px;text-align:center"><div style="font-size:40px;margin-bottom:16px" class="flt">🔬</div><h3 style="font-family:'Orbitron',monospace;font-size:13px;color:#00e5ff;margin-bottom:12px">DEEP TECH RESEARCH</h3><p style="font-size:15px;color:rgba(255,255,255,.45);line-height:1.7">Dive deeper into AI-driven embedded systems and intelligent IoT architectures that shape the future of smart infrastructure.</p></div>
+      <div class="gl" style="padding:32px;text-align:center"><div style="font-size:40px;margin-bottom:16px" class="flt">🌍</div><h3 style="font-family:'Orbitron',monospace;font-size:13px;color:#b026ff;margin-bottom:12px">SUSTAINABLE INNOVATION</h3><p style="font-size:15px;color:rgba(255,255,255,.45);line-height:1.7">Build eco-friendly technology solutions contributing to smart cities and sustainable development for Tamil Nadu and beyond.</p></div>
+      <div class="gl" style="padding:32px;text-align:center"><div style="font-size:40px;margin-bottom:16px" class="flt">🚀</div><h3 style="font-family:'Orbitron',monospace;font-size:13px;color:#ff007f;margin-bottom:12px">INDUSTRY LEADERSHIP</h3><p style="font-size:15px;color:rgba(255,255,255,.45);line-height:1.7">Grow into a technical leader in a top-tier organization, mentoring the next generation while driving innovation at scale.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ASSISTANT -->
+<section id="assistant" class="sr" style="padding:100px 20px;max-width:750px;margin:0 auto">
+  <div class="sec-hd"><span>INTERACTIVE ASSISTANT</span><h2>ASK ME ANYTHING</h2><div class="sec-line"></div></div>
+  <div class="gl" style="padding:0;overflow:hidden;border:1px solid rgba(0,229,255,.15)">
+    <div style="background:rgba(0,229,255,.05);padding:10px 16px;border-bottom:1px solid rgba(0,229,255,.08);display:flex;gap:6px;align-items:center">
+      <div style="width:8px;height:8px;border-radius:50%;background:#ff5f57"></div><div style="width:8px;height:8px;border-radius:50%;background:#febc2e"></div><div style="width:8px;height:8px;border-radius:50%;background:#28c840"></div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#00e5ff;margin-left:10px">portfolio_assistant.exe — v2.0</span>
+    </div>
+    <div class="chat-box" style="padding:20px" id="chatBox">
+      <div style="margin-bottom:14px;text-align:left"><div style="display:inline-block;max-width:85%;padding:12px 16px;border-radius:14px 14px 14px 4px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:14px;color:#bbb;line-height:1.6"><span style="color:#00e5ff;font-family:'JetBrains Mono',monospace;font-size:10px">MG_BOT &gt; </span>Hello! Ask me about Mamtha's skills, projects, internships, or achievements!</div></div>
+    </div>
+    <div style="padding:12px 18px;border-top:1px solid rgba(0,229,255,.06);display:flex;gap:10px">
+      <input id="chatIn" class="fi" placeholder="Ask about skills, projects, experience..." style="flex:1;padding:10px 14px;font-size:13px" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="nb hl" onclick="sendChat()" style="padding:10px 20px;font-size:9px;flex-shrink:0">SEND</button>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="sr" style="padding:100px 20px;background:rgba(0,229,255,.01)">
+  <div style="max-width:1000px;margin:0 auto">
+    <div class="sec-hd"><span>LET'S COLLABORATE</span><h2>CONTACT ME</h2><div class="sec-line"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" class="g2">
+      <div>
+        <h3 style="font-family:'Exo 2',sans-serif;font-size:22px;color:#fff;margin-bottom:16px;font-weight:600">Ready to build something amazing?</h3>
+        <p style="font-size:17px;color:rgba(255,255,255,.45);line-height:1.8;margin-bottom:32px">I'm actively looking for opportunities. Whether you have a project in mind or just want to connect, I'd love to hear from you!</p>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:28px">
+          <div style="display:flex;gap:12px;align-items:center"><span style="font-size:20px">📧</span><span style="font-size:15px;color:#bbb">mamthag1206@gmail.com</span></div>
+          <div style="display:flex;gap:12px;align-items:center"><span style="font-size:20px">📱</span><span style="font-size:15px;color:#bbb">+91 8248332242</span></div>
+          <div style="display:flex;gap:12px;align-items:center"><span style="font-size:20px">📍</span><span style="font-size:15px;color:#bbb">Krishnagiri, Tamil Nadu, India</span></div>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <a href="https://linkedin.com/in/mamtha-g-6bbb142bb" target="_blank" class="gl hl" style="padding:14px 20px;display:flex;gap:10px;align-items:center;text-decoration:none"><span style="font-size:20px">💼</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#0077b5">LinkedIn</span></a>
+          <a href="https://github.com/Mamtha-12345" target="_blank" class="gl hl" style="padding:14px 20px;display:flex;gap:10px;align-items:center;text-decoration:none"><span style="font-size:20px">⚡</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00e5ff">GitHub</span></a>
+        </div>
+      </div>
+      <div>
+        <form action="https://formsubmit.co/mamthag1206@gmail.com" method="POST" class="gl" style="padding:30px">
+          <input type="hidden" name="_subject" value="Portfolio: New Message"><input type="hidden" name="_captcha" value="false">
+          <div style="margin-bottom:18px"><label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px">YOUR NAME</label><input name="name" required class="fi" placeholder="Your Name"></div>
+          <div style="margin-bottom:18px"><label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px">YOUR EMAIL</label><input name="email" type="email" required class="fi" placeholder="you@email.com"></div>
+          <div style="margin-bottom:22px"><label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px">MESSAGE</label><textarea name="message" required rows="4" class="fi" placeholder="Tell me about your project..." style="resize:vertical"></textarea></div>
+          <button type="submit" class="nb hl" style="width:100%;text-align:center;padding:16px">⚡ SEND MESSAGE</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:rgba(0,0,0,.4);border-top:1px solid rgba(0,229,255,.06);padding:50px 20px;text-align:center;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,229,255,.02),rgba(176,38,255,.02));pointer-events:none"></div>
+  <div style="position:relative;z-index:1">
+    <div style="font-family:'Audiowide',sans-serif;font-size:22px;background:linear-gradient(135deg,#00e5ff,#b026ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;letter-spacing:3px">MAMTHA G</div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.2);margin-bottom:20px">B.E ECE Engineer | IoT | Data Analytics | VLSI | Robotics</p>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,255,.2),transparent);margin:16px auto"></div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.1)">© 2026 Mamtha G. Crafted with passion & technology.</p>
+  </div>
+</footer>
+
+<style>
+.sec-hd{margin-bottom:44px}.sec-hd span{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(0,229,255,.35);letter-spacing:4px;display:block;margin-bottom:6px}.sec-hd h2{font-family:'Orbitron',monospace;font-weight:900;font-size:2.4rem;background:linear-gradient(135deg,#fff,#00e5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}.sec-line{width:60px;height:3px;background:linear-gradient(90deg,#00e5ff,#b026ff);border-radius:2px;margin-top:14px;box-shadow:0 0 10px rgba(0,229,255,.4)}.sp{padding:100px 20px}
+</style>
+
+<script>
+const D={
+  roles:["IoT Developer","Data Analyst","Embedded Systems Engineer","VLSI Designer","AI & Robotics Enthusiast"],
+  skills:{
+    tech:[{n:"HTML/CSS",l:88},{n:"Core Java",l:80},{n:"Python",l:85},{n:"C Language",l:82},{n:"Data Analytics",l:87},{n:"IoT/Arduino",l:90},{n:"ESP8266/32",l:85},{n:"VLSI/Verilog",l:75},{n:"PowerBI",l:80},{n:"Git",l:78}],
+    tools:["Canva","Google Workspace","VS Code","PowerBI Desktop","Turbo C","PyCharm","Git","Arduino IDE","Thonny IDE","Xilinx ISE","VLSI Software","Eclipse","MS Office"]
+  },
+  exp:[
+    {r:"Data Analytics Training",c:"ICT Academy (Infosys)",y:"2025",d:"Completed one-month Data Analyst training with hands-on experience in Python, SQL, Azure, Excel, and Power BI. Built interactive dashboards to derive insights.",cl:"#00e5ff"},
+    {r:"Embedded Real Time Systems Intern",c:"SKM Electronics Pvt. Ltd.",y:"2025",d:"Developed IoT project using ESP8266 NodeMCU for remote monitoring and automation. Expert in microcontroller programming and sensor integration.",cl:"#b026ff"},
+    {r:"VLSI Intern",c:"Corizo | Bangalore",y:"2025",d:"Worked on VLSI design concepts, logic circuit simulation, and RTL design using Verilog with digital system implementation and testing.",cl:"#ff007f"},
+    {r:"AI & Robotics Intern",c:"Make Labs R&D",y:"2026",d:"Gained practical exposure to intelligent systems and automation. Worked on real-time projects applying concepts to design innovative solutions.",cl:"#00e676"}
+  ],
+  proj:[
+    {n:"Smart Door Lock System",y:"2025",t:["Arduino","RFID","IoT","Keypad"],d:"Smart Door Lock using Arduino, integrating RFID, keypad, and IoT for secure, automated, and remote access control for enhanced home security.",cl:"#00e5ff",ic:"🔒",gh:null,imgs:[]},
+    {n:"Finance Dashboard",y:"2026",t:["HTML/CSS","JavaScript","Data Viz","UI/UX"],d:"Interactive finance dashboard to track income, expenses, and balance with data visualizations, spending analysis, and role-based UI.",cl:"#b026ff",ic:"📊",gh:"https://github.com/Mamtha-12345/Financial-Dashboard",imgs:[]},
+    {n:"Employment Management System",y:"2025",t:["Java","Database","CRUD","UI"],d:"Employment Management System for employee records, attendance, and payroll with database integration for secure data storage.",cl:"#00ffff",ic:"👥",gh:"https://github.com/Mamtha-12345/Employment-management-system",imgs:[]},
+    {n:"Air & Noise Quality Monitor",y:"2025",t:["ESP8266","MQ135","LCD","IoT"],d:"IoT-based Air and Noise Quality Monitoring using ESP8266, integrating sound and MQ135 gas sensors with LCD display for real-time environmental data.",cl:"#ff007f",ic:"🌫️",gh:null,imgs:["https://z-cdn-media.chatglm.cn/files/b4634f2f-75db-4696-be4e-d4bf4bf68243.jpg?auth_key=1878419637-062e5645270e4aeea6c458adb1d2099d-0-330f102fb74632a13c67d9d352ec920b","https://z-cdn-media.chatglm.cn/files/50a9813d-64a1-49f6-bc27-c7016005c7e5.jpg?auth_key=1878419637-f237c2d1cc41495fa82093aab6e365c3-0-eeb18b0c6854d50718f2f94cfe7e9884"]}
+  ],
+  ach:[
+    {ic:"🥇",tx:"1st Place – Technical Quiz",sub:"National Level Technical Symposium",cl:"#ffd700",cert:{title:"FIRST PRIZE",subtitle:"Technical Quiz",body:"National Level Technical Symposium",color:"#ffd700"}},
+    {ic:"🥉",tx:"3rd Place – Paper Presentation",sub:"National Level Technical Symposium",cl:"#cd7f32",cert:{title:"THIRD PRIZE",subtitle:"Paper Presentation",body:"National Level Technical Symposium",color:"#cd7f32"}},
+    {ic:"📄",tx:"Paper at NCAAIT'26",sub:"Deep Learning-Based Face Recognition for Indoor Delivery",cl:"#00e5ff",cert:{title:"PAPER PRESENTED",subtitle:"NCAAIT'26",body:"Secure Autonomous Indoor Delivery Framework using Deep Learning-Based Face Recognition — Er. Perumal Manimekalai College of Engineering, Hosur",color:"#00e5ff"}},
+    {ic:"🚀",tx:"TNWISE 2026 Hackathon",sub:"Smart & Sustainable Tamil Nadu — TANCAM",cl:"#b026ff",cert:{title:"PARTICIPATION",subtitle:"TNWISE 2026 Hackathon",body:"Smart & Sustainable Tamil Nadu — Organized by TANCAM",color:"#b026ff"}}
+  ],
+  cert:[
+    {t:"Data Analytics Certification",i:"ICT Academy (Implemented by Infosys)",ic:"📊",cl:"#00e5ff"},
+    {t:"Value Added Course – Aptipedia, ACE Achieve, Portfolio Website",i:"Department of ECE, PSVCET - IAS",ic:"🎓",cl:"#b026ff"},
+    {t:"IoT Workshop – Arduino & MicroPython using ESP32",i:"Crane Varsity",ic:"🔌",cl:"#00e676"}
+  ]
+};
+
+// LOADER
+let ldP=0;const ldI=setInterval(()=>{ldP+=Math.random()*15+3;if(ldP>=100){ldP=100;clearInterval(ldI);setTimeout(()=>{document.getElementById('loader').classList.add('done');animCnt()},400)}const e=document.getElementById('ldPct');if(e)e.textContent=Math.floor(ldP)+'%'},120);
+setTimeout(()=>{document.getElementById('loader').classList.add('done');animCnt()},4000);
+
+// CURSOR
+const cD=document.getElementById('cDot'),cR=document.getElementById('cRing'),cG=document.getElementById('cGlow');let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cG.style.left=mx+'px';cG.style.top=my+'px'});
+(function cL(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cD.style.left=(mx-3)+'px';cD.style.top=(my-3)+'px';cR.style.left=(rx-18)+'px';cR.style.top=(ry-18)+'px';requestAnimationFrame(cL)})();
+function bH(){document.querySelectorAll('.hl,a,button,.gl,.nb').forEach(el=>{el.addEventListener('mouseenter',()=>cR.classList.add('hov'));el.addEventListener('mouseleave',()=>cR.classList.remove('hov'))})}bH();
+
+// MATRIX
+(function(){const cv=document.getElementById('matrixBg'),cx=cv.getContext('2d');function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();addEventListener('resize',rs);const ch='アイウエオカキクケコ0123456789ABCDEF<>{}[]',fs=14,co=Math.floor(cv.width/fs),dr=Array(co).fill(0).map(()=>Math.random()*cv.height/fs|0);setInterval(()=>{cx.fillStyle='rgba(3,3,8,0.06)';cx.fillRect(0,0,cv.width,cv.height);cx.font=fs+'px JetBrains Mono';for(let i=0;i<dr.length;i++){cx.fillStyle=Math.random()>.97?'#00e5ff':'rgba(0,229,255,0.12)';cx.fillText(ch[Math.random()*ch.length|0],i*fs,dr[i]*fs);if(dr[i]*fs>cv.height&&Math.random()>.975)dr[i]=0;dr[i]++}},55)})();
+
+// THREE.JS
+(function(){try{const cv=document.getElementById('threeBg'),rn=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});rn.setSize(innerWidth,innerHeight);rn.setPixelRatio(Math.min(devicePixelRatio,2));const sc=new THREE.Scene(),cm=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,1000);cm.position.z=35;const gs=[new THREE.IcosahedronGeometry(1,0),new THREE.OctahedronGeometry(1,0),new THREE.TetrahedronGeometry(1,0),new THREE.TorusGeometry(1,.3,8,20),new THREE.BoxGeometry(1,1,1),new THREE.TorusKnotGeometry(.7,.2,50,8)];const cs=[0x00e5ff,0xb026ff,0xff007f,0x00ffff,0x00e676,0x8a2be2];const ss=[];for(let i=0;i<25;i++){const m=new THREE.MeshBasicMaterial({color:cs[Math.random()*cs.length|0],wireframe:true,transparent:true,opacity:.1+Math.random()*.12});const ms=new THREE.Mesh(gs[Math.random()*gs.length|0],m);const s=.4+Math.random()*2.2;ms.scale.set(s,s,s);ms.position.set((Math.random()-.5)*70,(Math.random()-.5)*50,(Math.random()-.5)*30);ms.rotation.set(Math.random()*6,Math.random()*6,0);ms.userData={rx:(Math.random()-.5)*.012,ry:(Math.random()-.5)*.012,fs:Math.random()*.4+.2,fo:Math.random()*6.28,oy:ms.position.y};sc.add(ms);ss.push(ms)}const pg=new THREE.BufferGeometry(),pp=new Float32Array(600*3);for(let i=0;i<600*3;i+=3){pp[i]=(Math.random()-.5)*90;pp[i+1]=(Math.random()-.5)*70;pp[i+2]=(Math.random()-.5)*40}pg.setAttribute('position',new THREE.BufferAttribute(pp,3));const pm=new THREE.PointsMaterial({color:0x00e5ff,size:.06,transparent:true,opacity:.35});const pts=new THREE.Points(pg,pm);sc.add(pts);(function a(){requestAnimationFrame(a);const t=Date.now()*.001;ss.forEach(s=>{s.rotation.x+=s.userData.rx;s.rotation.y+=s.userData.ry;s.position.y=s.userData.oy+Math.sin(t*s.userData.fs+s.userData.fo)*2.5});pts.rotation.y+=.0002;rn.render(sc,cm)})();addEventListener('resize',()=>{cm.aspect=innerWidth/innerHeight;cm.updateProjectionMatrix();rn.setSize(innerWidth,innerHeight)})}catch(e){}})();
+
+// TYPING
+let ri=0,tt='',it=true;const tE=document.getElementById('typed');
+function tL(){if(!tE)return;const r=D.roles[ri];if(it){if(tt.length<r.length){tt=r.slice(0,tt.length+1);tE.textContent=tt;setTimeout(tL,75)}else setTimeout(()=>{it=false;tL()},2200)}else{if(tt.length>0){tt=tt.slice(0,-1);tE.textContent=tt;setTimeout(tL,35)}else{ri=(ri+1)%D.roles.length;it=true;setTimeout(tL,400)}}}setTimeout(tL,2800);
+
+// CLOCK
+function ck(){const e=document.getElementById('clock');if(e)e.textContent=new Date().toLocaleTimeString('en-US',{hour12:false})}setInterval(ck,1000);ck();
+
+// COUNTERS
+function animCnt(){document.querySelectorAll('.cnt').forEach(el=>{const t=parseFloat(el.dataset.t);if(!t)return;const fl=t%1!==0;let c=0;const inc=t/50;const tm=setInterval(()=>{c+=inc;if(c>=t){c=t;clearInterval(tm)}el.textContent=fl?c.toFixed(1):Math.floor(c)},35)})}
+
+// OBSERVERS
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');e.target.querySelectorAll('.sk-fill').forEach(b=>{b.style.width=b.dataset.w});e.target.querySelectorAll('.ring').forEach(r=>{r.style.strokeDashoffset=r.dataset.o})}})},{threshold:.12});
+document.querySelectorAll('.sr').forEach(s=>io.observe(s));
+const nio=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.nv').forEach(l=>l.classList.remove('act'));document.querySelectorAll(`.nv[data-s="${e.target.id}"]`).forEach(l=>l.classList.add('act'))}})},{threshold:.25});
+['hero','about','skills','education','experience','projects','achievements','certifications','coding','vision','assistant','contact'].forEach(id=>{const el=document.getElementById(id);if(el)nio.observe(el)});
+
+// MOBILE
+function toggleMob(){const n=document.getElementById('mobNav');n.style.display=n.style.display==='flex'?'none':'flex'}
+function closeMob(){document.getElementById('mobNav').style.display='none'}
+
+// SKILLS
+const sclr=['#00e5ff','#b026ff','#ff007f','#00ffff','#00e676','#8a2be2','#00e5ff','#b026ff','#ff007f','#00ffff'];
+const csk=document.getElementById('circSk');
+D.skills.tech.forEach((s,i)=>{const r=36,c=2*Math.PI*r,o=c-(s.l/100)*c;const d=document.createElement('div');d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:6px';d.innerHTML=`<div class="sk-circ" style="width:80px;height:80px;position:relative"><svg width="80" height="80"><circle cx="40" cy="40" r="${r}" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="3.5"/><circle class="ring" cx="40" cy="40" r="${r}" fill="none" stroke="${sclr[i]}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${c}" data-o="${o}" style="stroke-dashoffset:${c};filter:drop-shadow(0 0 4px ${sclr[i]}88)"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:${sclr[i]}">${s.l}%</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.4);text-align:center;line-height:1.3">${s.n}</div>`;csk.appendChild(d)});
+const bsk=document.getElementById('barSk');
+D.skills.tech.forEach((s,i)=>{bsk.innerHTML+=`<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#aaa">${s.n}</span><span style="font-family:'Orbitron',monospace;font-size:10px;color:${sclr[i]}">${s.l}%</span></div><div class="sk-bar"><div class="sk-fill" data-w="${s.l}%" style="width:0%;background:linear-gradient(90deg,${sclr[i]},${sclr[(i+1)%sclr.length]})"></div></div></div>`});
+const tg=document.getElementById('toolsG');
+D.skills.tools.forEach(t=>{tg.innerHTML+=`<div class="gl" style="padding:7px 14px;border-radius:8px;font-size:11px;font-family:'JetBrains Mono',monospace;color:#aaa">${t}</div>`});
+
+// EXPERIENCE
+const etl=document.getElementById('expTL');
+D.exp.forEach(e=>{etl.innerHTML+=`<div style="display:flex;gap:20px;margin-bottom:32px;position:relative"><div style="position:absolute;left:-42px"><div class="tl-dot" style="--c:${e.cl};background:${e.cl}"></div></div><div class="gl" style="padding:26px;flex:1;margin-left:14px;border-color:${e.cl}22"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px"><div><h3 style="font-family:'Orbitron',monospace;font-size:13px;color:#fff;margin-bottom:3px">${e.r}</h3><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${e.cl}">${e.c}</div></div><span style="background:${e.cl}12;border:1px solid ${e.cl}33;border-radius:16px;padding:3px 12px;font-size:10px;color:${e.cl};font-family:'Orbitron',monospace">${e.y}</span></div><p style="font-size:14px;color:rgba(255,255,255,.45);line-height:1.7">${e.d}</p></div></div>`});
+
+// PROJECTS with GitHub links and images
+const pg=document.getElementById('projG');
+D.proj.forEach((p,idx)=>{
+  let ghLink='';
+  if(p.gh) ghLink=`<a href="${p.gh}" target="_blank" class="gh-link hl" style="margin-top:10px"><span>⟨/⟩</span> View on GitHub</a>`;
+  let imgHtml='';
+  if(p.imgs.length>0){
+    imgHtml=`<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">`;
+    p.imgs.forEach((img,ii)=>{
+      imgHtml+=`<img src="${img}" class="proj-thumb hl" style="flex:1;min-width:140px" onclick="openImgModal(${idx},${ii})" alt="${p.n} image ${ii+1}">`;
+    });
+    imgHtml+=`</div>`;
+  }
+  pg.innerHTML+=`<div class="tilt"><div class="gl tilt-in nb-border" style="padding:26px;position:relative;overflow:hidden"><div style="width:100%;height:4px;background:linear-gradient(90deg,${p.cl},transparent);border-radius:2px;margin-bottom:18px;box-shadow:0 0 10px ${p.cl}55"></div><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-family:'Orbitron',monospace;font-size:10px;color:${p.cl};letter-spacing:2px">${p.y}</span><div style="display:flex;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:#ff5f57"></div><div style="width:6px;height:6px;border-radius:50%;background:#febc2e"></div><div style="width:6px;height:6px;border-radius:50%;background:#28c840"></div></div></div><div style="font-size:28px;margin-bottom:6px">${p.ic}</div><h3 style="font-family:'Orbitron',monospace;font-size:14px;color:#fff;margin-bottom:10px;line-height:1.4">${p.n}</h3><p style="font-size:13px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:10px">${p.d}</p><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px">${p.t.map(t=>`<span style="background:${p.cl}10;border:1px solid ${p.cl}28;border-radius:3px;padding:2px 8px;font-size:10px;color:${p.cl};font-family:'JetBrains Mono',monospace">${t}</span>`).join('')}</div>${ghLink}${imgHtml}</div></div>`;
+});
+
+// IMAGE MODAL
+let modalImgs=[],modalIdx=0;
+function openImgModal(pIdx,iIdx){
+  modalImgs=D.proj[pIdx].imgs;modalIdx=iIdx;
+  document.getElementById('modalImg').src=modalImgs[modalIdx];
+  document.getElementById('imgCap').textContent=`${iIdx+1} / ${modalImgs.length}`;
+  document.getElementById('imgModal').classList.add('show');
+}
+function closeModal(){document.getElementById('imgModal').classList.remove('show')}
+function navImg(dir){modalIdx=(modalIdx+dir+modalImgs.length)%modalImgs.length;document.getElementById('modalImg').src=modalImgs[modalIdx];document.getElementById('imgCap').textContent=`${modalIdx+1} / ${modalImgs.length}`}
+document.getElementById('imgModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='ArrowLeft')navImg(-1);if(e.key==='ArrowRight')navImg(1)});
+
+// ACHIEVEMENTS WITH FLIP CERTIFICATES
+const ag=document.getElementById('achG');
+D.ach.forEach((a,i)=>{
+  const cert=a.cert;
+  ag.innerHTML+=`
+  <div class="flip-card" onclick="this.classList.toggle('flipped')" style="height:300px">
+    <div class="flip-inner">
+      <div class="flip-front gl" style="padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:rgba(5,5,20,.7)">
+        <div style="font-size:48px;margin-bottom:14px">${a.ic}</div>
+        <h3 style="font-family:'Orbitron',monospace;font-size:15px;color:#fff;margin-bottom:8px;line-height:1.3">${a.tx}</h3>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${a.cl};margin-bottom:20px">${a.sub}</p>
+        <div style="width:40px;height:2px;background:linear-gradient(90deg,${a.cl},transparent);margin-bottom:12px"></div>
+        <div class="click-hint">▸ CLICK TO REVEAL ◂</div>
+      </div>
+      <div class="flip-back" style="border-radius:16px;overflow:hidden;border:1px solid ${cert.color}33">
+        <div class="cert-visual" style="border-color:${cert.color}">
+          <div style="position:absolute;top:12px;left:16px;font-family:'JetBrains Mono',monospace;font-size:8px;color:${cert.color};opacity:.4;letter-spacing:2px">CERTIFICATE</div>
+          <div style="position:absolute;top:12px;right:16px;font-family:'JetBrains Mono',monospace;font-size:8px;color:${cert.color};opacity:.4;letter-spacing:2px">MAMTHA G</div>
+          <div class="cert-icon" style="filter:drop-shadow(0 0 20px ${cert.color}66)">${a.ic}</div>
+          <div class="cert-title" style="color:${cert.color};font-size:18px;margin-bottom:4px">${cert.title}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${cert.color};opacity:.7;margin-bottom:10px">${cert.subtitle}</div>
+          <div style="width:50px;height:1px;background:${cert.color};opacity:.3;margin-bottom:10px"></div>
+          <div class="cert-issuer" style="font-size:11px;color:rgba(255,255,255,.5);max-width:90%;line-height:1.5">${cert.body}</div>
+          <div class="cert-seal" style="border-color:${cert.color};color:${cert.color}">${a.ic}</div>
+          <div style="position:absolute;bottom:12px;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.2);letter-spacing:1px">AWARDED TO MAMTHA G</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+});
+
+// CERTIFICATIONS
+const cg=document.getElementById('certG');
+D.cert.forEach(c=>{cg.innerHTML+=`<div class="gl" style="padding:26px;text-align:center"><div style="font-size:32px;margin-bottom:10px">${c.ic}</div><h3 style="font-family:'Orbitron',monospace;font-size:12px;color:${c.cl};margin-bottom:6px;line-height:1.4">${c.t}</h3><p style="font-size:12px;color:rgba(255,255,255,.35)">${c.i}</p></div>`});
+
+// PROFILES
+const pf=document.getElementById('profG');
+[{ic:"💼",l:"LinkedIn",v:"mamtha-g-6bbb142bb",cl:"#0077b5",lk:"https://linkedin.com/in/mamtha-g-6bbb142bb"},{ic:"⚡",l:"GitHub",v:"Mamtha-12345",cl:"#00e5ff",lk:"https://github.com/Mamtha-12345"},{ic:"📧",l:"Email",v:"mamthag1206@gmail.com",cl:"#ff007f",lk:"mailto:mamthag1206@gmail.com"}].forEach(p=>{pf.innerHTML+=`<a href="${p.lk}" target="_blank" style="text-decoration:none"><div class="gl hl" style="padding:22px 28px;display:flex;gap:14px;align-items:center;min-width:250px"><span style="font-size:26px">${p.ic}</span><div><div style="font-family:'Orbitron',monospace;font-size:11px;color:${p.cl};letter-spacing:2px">${p.l}</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,.4)">${p.v}</div></div></div></a>`});
+
+// CHAT
+function sendChat(){const inp=document.getElementById('chatIn'),msg=inp.value.trim();if(!msg)return;inp.value='';const box=document.getElementById('chatBox');box.innerHTML+=`<div style="margin-bottom:14px;text-align:right"><div style="display:inline-block;max-width:80%;padding:10px 16px;border-radius:14px 14px 4px 14px;background:linear-gradient(135deg,#00e5ff,#b026ff);font-size:14px;color:#000;line-height:1.5">${msg}</div></div>`;const lid='cl'+Date.now();box.innerHTML+=`<div id="${lid}" style="margin-bottom:14px;text-align:left"><div style="display:inline-block;padding:10px 16px;border-radius:14px 14px 14px 4px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-family:'JetBrains Mono',monospace;font-size:13px;color:#00e5ff">MG_BOT &gt; <span class="td"><span>.</span><span>.</span><span>.</span></span></div></div>`;box.scrollTop=box.scrollHeight;setTimeout(()=>{const ld=document.getElementById(lid);if(ld)ld.remove();const rp={skills:"Mamtha is skilled in HTML/CSS, Java, Python, C, Data Analytics, IoT/Arduino, ESP8266, VLSI/Verilog, PowerBI, and Git. She's strongest in IoT/Arduino at 90%!",projects:"Mamtha built 4 projects: Smart Door Lock (IoT), Finance Dashboard (Web), Employment Management System (Java), and Air & Noise Quality Monitor (IoT/ESP8266).",experience:"She completed 4 internships: Data Analytics at ICT Academy/Infosys, Embedded Systems at SKM Electronics, VLSI at Corizo Bangalore, and AI & Robotics at Make Labs R&D.",education:"Mamtha is pursuing B.E ECE at P.S.V College of Engineering & Technology with 8.5 CGPA, graduating 2026.",achievements:"She won 1st in Technical Quiz, 3rd in Paper Presentation at national symposiums, presented at NCAAIT'26, and participated in TANCAM TNWISE 2026 Hackathon.",contact:"Reach Mamtha at mamthag1206@gmail.com or +91 8248332242. Based in Krishnagiri, Tamil Nadu.",certifications:"She holds certifications in Data Analytics from ICT Academy/Infosys, Value Added Course from PSVCET, and IoT Workshop from Crane Varsity.",languages:"Mamtha speaks Tamil, Telugu, English, and Kannada fluently!"};const mk=msg.toLowerCase();let rep="Great question! Mamtha is a talented ECE engineer with expertise in IoT, Data Analytics, VLSI, and Robotics. Ask about her skills, projects, or experience!";for(const[k,v]of Object.entries(rp)){if(mk.includes(k)){rep=v;break}}box.innerHTML+=`<div style="margin-bottom:14px;text-align:left"><div style="display:inline-block;max-width:85%;padding:10px 16px;border-radius:14px 14px 14px 4px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:14px;color:#bbb;line-height:1.6"><span style="color:#00e5ff;font-family:'JetBrains Mono',monospace;font-size:10px">MG_BOT &gt; </span>${rep}</div></div>`;box.scrollTop=box.scrollHeight},1200)}
+
+// PARTICLES
+for(let i=0;i<45;i++){const p=document.createElement('div');p.className='ptc';const sz=Math.random()*3+.8;const cs=['#00e5ff','#b026ff','#ff007f','#00ffff','#00e676','#8a2be2'];p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cs[Math.random()*cs.length|0]};opacity:${Math.random()*.35+.08};animation-duration:${10+Math.random()*18}s;animation-delay:${Math.random()*12}s`;document.body.appendChild(p)}
+
+// SMOOTH SCROLL
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});closeMob()})});
+
+// 3D TILT
+document.querySelectorAll('.tilt').forEach(c=>{c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;c.querySelector('.tilt-in').style.transform=`perspective(1000px) rotateX(${(y-r.height/2)/12}deg) rotateY(${(r.width/2-x)/12}deg)`});c.addEventListener('mouseleave',()=>{c.querySelector('.tilt-in').style.transform='perspective(1000px) rotateX(0) rotateY(0)'})});
+
+setTimeout(bH,200);
+</script>
+</body>
+</html>
